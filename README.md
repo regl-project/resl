@@ -12,27 +12,33 @@ require('resl')({
   // The configuration object must contain a manifest field which specifies
   // a list of all resources to load and their types.
   manifest: {
-    // Each entry in the manifest
+    // Each entry in the manifest represents an asset to be loaded
     'scores': {
-      type: 'text',
-      src: 'data/scores.csv'
+      type: 'text',           // the type declares the type of the asset
+      src: 'data/scores.csv'  // and src declares the URL of the asset
     },
 
+    // You can also specify HTML elements as assets
     'an_image': {
       type: 'image',
       src: 'images/some-image.png'
     },
 
+    // Assets can also be streamed as well
     'some_video': {
       type: 'video',
-      stream: true,
+      stream: true,   // setting the streaming flag specifies that
+                      // the done() callback will fire as soon as the
+                      // asset has started loading
       src: 'videos/some-video.mp4'
     },
 
+    // You can also specify custom parsers for your assets
     'json_data': {
       type: 'text',
       src: 'mydata.json',
-      parser: JSON.parse
+      parser: JSON.parse  // Here we call JSON.parse as soon as the asset has
+                          // finished loading
     }
   },
 
@@ -73,25 +79,28 @@ npm install resl
 
 | Config parameter | Interpretation |
 |------------------|----------------|
-| `manifest` | (Required) An object listing each resource to be loaded. For more details see below |
+| `manifest` | (Required) An object listing each resource to be loaded. [For more details see below](#manifest-entries) |
 | `onDone(assets)` | (Required) A callback which is executed once all assets have loaded.  This is passed a dictionary of all assets. |
 | `onProgress(progress, message)` | A callback which is executed each time more assets are loaded.  Gets passed two arguments: progress so far as a fraction of the total bundle and a message related to the most recent progress event. |
 | `onError(error)` | A callback which is executed if any errors are encountered during preloading.  Gets passed the last error which occurred. |
 
 #### Manifest Entries
-Each entry in the manifest is an object specifying the location (URL) of an asset, its type and some optional data related to parsing the asset.  User defined parsers can be inserted
+Each entry in the manifest is an object specifying the location (URL) of an asset, its type and some optional data related to parsing the asset.  User defined [parsers](#parser-interface) can be added to assets to help streamline loading resources.  
 
 | Manifest parameter | Interpretation | Default |
 |--------------------|----------------|---------|
 | `src` | (Required) The URL of the asset | N/A |
-| `type` | The type of the resources (see below) | `'text'` |
-| `parser` | An optional parser (see below) | `null` |
+| `type` | The [type of the asset](#resource-types). | `'text'` |
+| `parser` | An optional [parser](#parser-interface) (see below) | `null` |
 | `stream` | If set to true, then the resource is streamed. | `false` |
 | `credentials` | If set to true, then pass credentials to cross origin requests | `false` |
 
+#### Resource types
+The following resource types are currently supported by `resl`:
+
 | Resource type | Interpretation |
 |---------------|----------------|
-| `'text'` | String loaded via XHR |
+| `'text'` | A UTF string loaded via XHR |
 | `'binary'` | Binary array buffer loaded via XHR |
 | `'image'` | An HTML image element |
 | `'video'` | An HTML video element |
