@@ -102,9 +102,9 @@ The following resource types are currently supported by `resl`:
 |---------------|----------------|
 | `'text'` | A UTF string loaded via XHR |
 | `'binary'` | Binary array buffer loaded via XHR |
-| `'image'` | An HTML image element |
-| `'video'` | An HTML video element |
-| `'audio'` | An HTML audio element |
+| `'image'` | An [HTML image element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img) |
+| `'video'` | An [HTML video element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) |
+| `'audio'` | [An HTML audio element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio) |
 
 #### Parser interface
 A manifest entry may take an optional parser object as input.
