@@ -1,0 +1,30 @@
+{
+  "name": "resl",
+  "version": "1.0.0",
+  "description": "A streaming resource loader",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikolalysenko/resl.git"
+  },
+  "keywords": [
+    "resource",
+    "asset",
+    "loader",
+    "preloader",
+    "load",
+    "preload",
+    "webgl",
+    "stackgl",
+    "regl"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/resl/issues"
+  },
+  "homepage": "https://github.com/mikolalysenko/resl#readme"
+}
