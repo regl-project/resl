@@ -1,4 +1,4 @@
-/* global Image Video Audio XMLHttpRequest */
+/* global XMLHttpRequest */
 var configParameters = [
   'manifest',
   'onDone',
@@ -51,7 +51,7 @@ module.exports = function resl (config) {
   checkType(config, configParameters, 'config')
 
   var manifest = config.manifest
-  if (typeof manifest !== 'function') {
+  if (typeof manifest !== 'object' || !manifest) {
     raise('missing manifest')
   }
 
@@ -102,13 +102,6 @@ module.exports = function resl (config) {
     if (binary) {
       xhr.responseType = 'arraybuffer'
     }
-
-    // set up request
-    if (request.credentials) {
-      xhr.withCredentials = true
-    }
-    xhr.open('GET', request.src, true)
-    xhr.send()
 
     function onReadyStateChange () {
       if (xhr.readyState < 2 ||
@@ -163,6 +156,13 @@ module.exports = function resl (config) {
       loader.state = STATE_ERROR
     }
 
+    // set up request
+    if (request.credentials) {
+      xhr.withCredentials = true
+    }
+    xhr.open('GET', request.src, true)
+    xhr.send()
+
     return loader
   }
 
@@ -172,14 +172,6 @@ module.exports = function resl (config) {
 
     var loader = new Loader(name, cancel)
     var asset = element
-
-    // set up request
-    if (request.credentials) {
-      element.crossOrigin = 'use-credentials'
-    } else {
-      element.crossOrigin = 'anonymous'
-    }
-    element.src = request.src
 
     function handleProgress () {
       if (loader.state === STATE_DATA) {
@@ -195,10 +187,14 @@ module.exports = function resl (config) {
       }
     }
 
-    function onProgress () {
+    function onProgress (e) {
       handleProgress()
       assets[name] = asset
-      loader.progress = 0.75 * loader.progress + 0.25
+      if (e.lengthComputable) {
+        loader.progress = Math.max(loader.progress, e.loaded / e.total)
+      } else {
+        loader.progress = 0.75 * loader.progress + 0.25
+      }
       loader.ready = request.stream
       notifyProgress(name)
     }
@@ -229,14 +225,22 @@ module.exports = function resl (config) {
     if (request.stream) {
       element.addEventListener('progress', onProgress)
     }
-    element.addEventListener('complete', onComplete)
+    if (request.type === 'image') {
+      element.addEventListener('load', onComplete)
+    } else {
+      element.addEventListener('canplay', onComplete)
+    }
     element.addEventListener('error', onError)
 
     function removeListeners () {
       if (request.stream) {
         element.removeEventListener('progress', onProgress)
       }
-      element.removeEventListener('complete', onComplete)
+      if (request.type === 'image') {
+        element.addEventListener('load', onComplete)
+      } else {
+        element.addEventListener('canplay', onComplete)
+      }
       element.removeEventListener('error', onError)
     }
 
@@ -249,25 +253,31 @@ module.exports = function resl (config) {
       element.src = ''
     }
 
+    // set up request
+    if (request.credentials) {
+      element.crossOrigin = 'use-credentials'
+    } else {
+      element.crossOrigin = 'anonymous'
+    }
+    element.src = request.src
+
     return loader
   }
 
   var loaders = {
-    text: function (request) {
-      loadXHR(request)
-    },
+    text: loadXHR,
     binary: function (request) {
       // TODO use fetch API for streaming if supported
       loadXHR(request)
     },
     image: function (request) {
-      loadElement(request, new Image())
+      return loadElement(request, document.createElement('img'))
     },
     video: function (request) {
-      loadElement(request, new Video())
+      return loadElement(request, document.createElement('video'))
     },
     audio: function (request) {
-      loadElement(request, new Audio())
+      return loadElement(request, document.createElement('audio'))
     }
   }
 
@@ -323,11 +333,11 @@ module.exports = function resl (config) {
 
     var parser = {}
     if ('parser' in request) {
-      if (typeof parser === 'function') {
+      if (typeof request.parser === 'function') {
         parser = {
           data: request.parser
         }
-      } else if (typeof parser === 'object' && parser) {
+      } else if (typeof request.parser === 'object' && request.parser) {
         checkType(parser, parserParameters, 'parser for asset "' + name + '"')
         if (!('onData' in parser)) {
           raise('missing onData callback for parser in asset "' + name + '"')
@@ -354,7 +364,7 @@ module.exports = function resl (config) {
   })
 
   function abort (message) {
-    if (state === STATE_ERROR) {
+    if (state === STATE_ERROR || state === STATE_COMPLETE) {
       return
     }
     state = STATE_ERROR
