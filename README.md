@@ -107,7 +107,10 @@ The following resource types are currently supported by `resl`:
 | `'audio'` | [An HTML audio element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio) |
 
 #### Parser interface
-A manifest entry may take an optional parser object as input.
+A manifest entry may take an optional parser object as input which transforms the base asset into some other data type.  There are two ways to specify a parser in `resl`:
+
+1. As a function `parser(data)` which takes as input the data and returns the encoded object.
+1. As an object which implements the following interface:
 
 | Callback | Effect |
 |----------|--------|
