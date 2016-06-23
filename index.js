@@ -268,7 +268,7 @@ module.exports = function resl (config) {
     text: loadXHR,
     binary: function (request) {
       // TODO use fetch API for streaming if supported
-      loadXHR(request)
+      return loadXHR(request)
     },
     image: function (request) {
       return loadElement(request, document.createElement('img'))
