@@ -418,4 +418,10 @@ module.exports = function resl (config) {
       }
     }
   }
+
+  if (pending.length === 0) {
+    setTimeout(function () {
+      notifyProgress('done')
+    }, 1)
+  }
 }
