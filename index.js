@@ -228,7 +228,20 @@ module.exports = function resl (config) {
     if (request.type === 'image') {
       element.addEventListener('load', onComplete)
     } else {
-      element.addEventListener('canplay', onComplete)
+      var canPlay = false
+      var loadedMetaData = false
+      element.addEventListener('loadedmetadata', function () {
+        loadedMetaData = true
+        if (canPlay) {
+          onComplete()
+        }
+      })
+      element.addEventListener('canplay', function () {
+        canPlay = true
+        if (loadedMetaData) {
+          onComplete()
+        }
+      })
     }
     element.addEventListener('error', onError)
 
