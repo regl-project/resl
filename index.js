@@ -195,7 +195,6 @@ module.exports = function resl (config) {
       } else {
         loader.progress = 0.75 * loader.progress + 0.25
       }
-      loader.ready = request.stream
       notifyProgress(name)
     }
 
