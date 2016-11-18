@@ -350,8 +350,8 @@ module.exports = function resl (config) {
           data: request.parser
         }
       } else if (typeof request.parser === 'object' && request.parser) {
-        checkType(parser, parserParameters, 'parser for asset "' + name + '"')
-        if (!('onData' in parser)) {
+        checkType(request.parser, parserParameters, 'parser for asset "' + name + '"')
+        if (!('onData' in request.parser)) {
           raise('missing onData callback for parser in asset "' + name + '"')
         }
         parser = {
